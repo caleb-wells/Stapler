@@ -10,7 +10,7 @@ asar: true
 publish:
   provider: github
   owner: caleb-wells
-  repo: abbys-app
+  repo: Stapler
 win:
   artifactName: ${productName}-Setup-${version}.${ext}
   target:
