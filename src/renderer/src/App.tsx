@@ -3,6 +3,10 @@ import { ImageGrid } from './components/ImageGrid';
 import { buildPdf } from './lib/build-pdf';
 import { loadItem, pendingItem, type ImageItem } from './lib/items';
 import { defaultPdfName } from './lib/names';
+import { canExport } from './lib/export-state';
+import { mapWithConcurrency } from './lib/concurrency';
+
+const DECODE_CONCURRENCY = 3;
 
 type Toast = { kind: 'ok' | 'err'; text: string } | null;
 
@@ -16,17 +20,17 @@ export function App(): ReactElement {
   itemsRef.current = items;
 
   const ready = items.filter((i) => i.status === 'ready');
+  const loadingCount = items.filter((i) => i.status === 'loading').length;
+  const exportable = canExport(items);
 
   const addPaths = useCallback(async (paths: string[]) => {
     if (paths.length === 0) return;
     const pending = paths.map(pendingItem);
     setItems((prev) => [...prev, ...pending]);
-    await Promise.all(
-      pending.map(async (p) => {
-        const loaded = await loadItem(p);
-        setItems((prev) => prev.map((i) => (i.id === loaded.id ? loaded : i)));
-      }),
-    );
+    await mapWithConcurrency(pending, DECODE_CONCURRENCY, async (p) => {
+      const loaded = await loadItem(p);
+      setItems((prev) => prev.map((i) => (i.id === loaded.id ? loaded : i)));
+    });
   }, []);
 
   async function pick(): Promise<void> {
@@ -53,7 +57,7 @@ export function App(): ReactElement {
   }
 
   async function exportPdf(): Promise<void> {
-    if (ready.length === 0 || exporting) return;
+    if (!exportable || exporting) return;
     setExporting(true);
     setToast(null);
     try {
@@ -110,8 +114,8 @@ export function App(): ReactElement {
           {items.length !== ready.length && ` (${items.length - ready.length} not ready)`}
         </span>
         <span className="progress">{progress}</span>
-        <button className="primary" onClick={exportPdf} disabled={ready.length === 0 || exporting}>
-          {exporting ? 'Exporting…' : 'Export PDF'}
+        <button className="primary" onClick={exportPdf} disabled={!exportable || exporting}>
+          {exporting ? 'Exporting…' : loadingCount > 0 ? `Loading ${loadingCount}…` : 'Export PDF'}
         </button>
       </footer>
 

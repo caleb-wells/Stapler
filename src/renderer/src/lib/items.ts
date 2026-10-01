@@ -1,5 +1,5 @@
 import { detectFormat } from './format';
-import { prepareImage } from './decode';
+import { prepareImageInWorker } from './decode-client';
 import type { PreparedImage } from './prepared-image';
 import { baseName } from './names';
 
@@ -25,7 +25,7 @@ export async function loadItem(item: ImageItem): Promise<ImageItem> {
     const bytes = await window.api.readFile(item.path);
     const format = detectFormat(bytes);
     if (!format) return { ...base, status: 'error', error: 'Unsupported file type' };
-    const prepared = await prepareImage(bytes, format);
+    const prepared = await prepareImageInWorker(bytes, format);
     const buffer = new ArrayBuffer(prepared.bytes.byteLength);
     new Uint8Array(buffer).set(prepared.bytes);
     const thumbUrl = URL.createObjectURL(

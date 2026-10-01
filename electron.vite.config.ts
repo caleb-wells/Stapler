@@ -8,5 +8,6 @@ export default defineConfig({
   renderer: {
     resolve: { alias: { '@shared': resolve('src/shared') } },
     plugins: [react()],
+    worker: { format: 'es' },
   },
 });

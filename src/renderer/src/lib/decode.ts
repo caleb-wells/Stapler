@@ -2,6 +2,7 @@ import exifr from 'exifr';
 import UTIF from 'utif2';
 import type { ImageFormat } from './format';
 import { outputEncodingFor } from './encoding';
+import { getHeifDecoder } from './heif';
 import type { PreparedImage } from './prepared-image';
 
 const MIME: Record<ImageFormat, string> = {
@@ -102,8 +103,7 @@ function decodeTiff(bytes: Uint8Array): Rgba {
 }
 
 async function decodeHeic(bytes: Uint8Array): Promise<Rgba> {
-  const libheif = (await import('libheif-js')).default;
-  const decoder = new libheif.HeifDecoder();
+  const decoder = await getHeifDecoder();
   const images = decoder.decode(bytes);
   if (images.length === 0) throw new Error('HEIC contains no images');
   const image = images[0];
