@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { DndContext, PointerSensor, closestCenter, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, arrayMove, rectSortingStrategy } from '@dnd-kit/sortable';
 import type { ImageItem } from '../lib/items';
@@ -28,9 +29,11 @@ export function ImageGrid({ items, onReorder, onRemove, onRotate, onOpen }: Prop
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={items.map((i) => i.id)} strategy={rectSortingStrategy}>
         <ul className="grid">
-          {items.map((item, index) => (
-            <ImageCard key={item.id} item={item} index={index} onRemove={onRemove} onRotate={onRotate} onOpen={onOpen} />
-          ))}
+          <AnimatePresence initial={false}>
+            {items.map((item, index) => (
+              <ImageCard key={item.id} item={item} index={index} onRemove={onRemove} onRotate={onRotate} onOpen={onOpen} />
+            ))}
+          </AnimatePresence>
         </ul>
       </SortableContext>
     </DndContext>

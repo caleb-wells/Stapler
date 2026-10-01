@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent, type ReactElement } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ImageGrid } from './components/ImageGrid';
 import { Preview } from './components/Preview';
 import { nextRotation } from './lib/rotation';
@@ -113,17 +114,30 @@ export function App(): ReactElement {
       <header className="topbar">
         <h1>Stapler</h1>
         <div className="actions">
-          <button onClick={pick}>Add images</button>
-          <button onClick={clearAll} disabled={items.length === 0}>Clear</button>
+          <motion.button onClick={pick} whileTap={{ scale: 0.95 }}>Add images</motion.button>
+          <motion.button onClick={clearAll} disabled={items.length === 0} whileTap={{ scale: 0.95 }}>Clear</motion.button>
         </div>
       </header>
 
       <main className="content">
         {items.length === 0 ? (
-          <div className="empty">
+          <motion.div className="empty glass" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }}>
+            <motion.div
+              className="empty-icon"
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              aria-hidden="true"
+            >
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="8" y="12" width="24" height="30" rx="3" />
+                <path d="M16 6h24v30" />
+                <circle cx="17" cy="22" r="3" />
+                <path d="M8 36l8-8 6 6 4-4 6 6" />
+              </svg>
+            </motion.div>
             <p>Drop images here or click <strong>Add images</strong>.</p>
             <p className="hint">JPEG, PNG, WebP, GIF, BMP, TIFF, HEIC</p>
-          </div>
+          </motion.div>
         ) : (
           <ImageGrid items={items} onReorder={setItems} onRemove={remove} onRotate={rotate} onOpen={setPreviewId} />
         )}
@@ -135,16 +149,31 @@ export function App(): ReactElement {
           {items.length !== ready.length && ` (${items.length - ready.length} not ready)`}
         </span>
         <span className="progress">{progress}</span>
-        <button className="primary" onClick={exportPdf} disabled={!exportable || exporting}>
+        <motion.button className="primary" onClick={exportPdf} disabled={!exportable || exporting} whileTap={{ scale: 0.95 }} whileHover={{ y: -1 }}>
           {exporting ? 'Exporting…' : loadingCount > 0 ? `Loading ${loadingCount}…` : 'Export PDF'}
-        </button>
+        </motion.button>
       </footer>
 
-      {toast && <div className={`toast toast-${toast.kind}`}>{toast.text}</div>}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key="toast"
+            className={`toast toast-${toast.kind} glass-dark`}
+            initial={{ opacity: 0, y: 24, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 12, x: '-50%' }}
+            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          >
+            {toast.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {previewIndex >= 0 && (
-        <Preview items={ready} index={previewIndex} onClose={closePreview} onStep={stepPreview} onRotate={rotate} />
-      )}
+      <AnimatePresence>
+        {previewIndex >= 0 && (
+          <Preview key="preview" items={ready} index={previewIndex} onClose={closePreview} onStep={stepPreview} onRotate={rotate} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
