@@ -90,7 +90,7 @@ export function App(): ReactElement {
       onDrop={onDrop}
     >
       <header className="topbar">
-        <h1>Image to PDF</h1>
+        <h1>Stapler</h1>
         <div className="actions">
           <button onClick={pick}>Add images</button>
           <button onClick={clearAll} disabled={items.length === 0}>Clear</button>

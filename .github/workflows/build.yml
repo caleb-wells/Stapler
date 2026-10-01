@@ -29,7 +29,10 @@ jobs:
         include:
           - os: windows-latest
             script: dist:win
-            artifact: 'dist/*.exe'
+            artifact: |
+              dist/*.exe
+              dist/*.exe.blockmap
+              dist/latest.yml
           - os: macos-latest
             script: dist:mac
             artifact: 'dist/*.dmg'

@@ -1,6 +1,6 @@
-# Image to PDF
+# Stapler
 
-Desktop app that merges multiple images into one PDF, one image per page.
+Staple your photos into one PDF, a page per image. A small desktop app.
 Runs on Windows, macOS and Linux.
 
 Supported inputs: JPEG, PNG, WebP, GIF, BMP, TIFF, HEIC/HEIF.
@@ -17,9 +17,9 @@ files are embedded without re-encoding; other formats are converted in-app.
 
 ## Build installers
 
-    npm run dist:win     # dist/Image to PDF Setup x.y.z.exe
-    npm run dist:mac     # dist/Image to PDF-x.y.z.dmg
-    npm run dist:linux   # dist/Image to PDF-x.y.z.AppImage
+    npm run dist:win     # dist/Stapler Setup x.y.z.exe
+    npm run dist:mac     # dist/Stapler-x.y.z.dmg
+    npm run dist:linux   # dist/Stapler-x.y.z.AppImage
 
 The Windows installer can also be built from macOS or Linux (electron-builder
 downloads a NSIS toolset; no Wine needed). macOS and Linux builds must run on
@@ -27,9 +27,15 @@ their own OS. The GitHub Actions workflow in `.github/workflows/build.yml`
 builds all three natively on every push to `main` and attaches them to a
 release when a `v*` tag is pushed.
 
+## Updates
+
+Windows installs check GitHub Releases on launch, download new versions in the
+background, and offer a restart. macOS and Linux users download new builds from
+the Releases page.
+
 ## Install
 
-- **Windows:** run `Image to PDF Setup x.y.z.exe`. Windows SmartScreen will
+- **Windows:** run `Stapler Setup x.y.z.exe`. Windows SmartScreen will
   warn because the installer is not code-signed; choose "More info" then
   "Run anyway".
 - **macOS:** open the `.dmg` and drag the app to Applications.

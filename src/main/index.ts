@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { IMAGE_EXTENSIONS, IPC } from '../shared/ipc';
+import { setupAutoUpdate } from './updater';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -11,7 +12,7 @@ function createWindow(): void {
     height: 700,
     minWidth: 600,
     minHeight: 400,
-    title: 'Image to PDF',
+    title: 'Stapler',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -59,6 +60,7 @@ function registerIpc(): void {
 void app.whenReady().then(() => {
   registerIpc();
   createWindow();
+  setupAutoUpdate(() => mainWindow);
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });

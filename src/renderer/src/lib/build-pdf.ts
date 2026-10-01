@@ -8,8 +8,8 @@ export async function buildPdf(images: PreparedImage[], onProgress?: ProgressCal
   if (images.length === 0) throw new Error('Need at least one image to build a PDF');
 
   const doc = await PDFDocument.create();
-  doc.setProducer('Image to PDF');
-  doc.setCreator('Image to PDF');
+  doc.setProducer('Stapler');
+  doc.setCreator('Stapler');
 
   for (let i = 0; i < images.length; i++) {
     const img = images[i];
