@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { canExport } from './export-state';
 import type { ImageItem } from './items';
 
-const ready = (id: string): ImageItem => ({ id, path: id, name: id, status: 'ready', thumbUrl: '', prepared: { kind: 'png', bytes: new Uint8Array(), width: 1, height: 1 } });
+const ready = (id: string): ImageItem => ({ id, path: id, name: id, status: 'ready', thumbUrl: '', rotation: 0, prepared: { kind: 'png', bytes: new Uint8Array(), width: 1, height: 1 } });
 const loading = (id: string): ImageItem => ({ id, path: id, name: id, status: 'loading' });
 const error = (id: string): ImageItem => ({ id, path: id, name: id, status: 'error', error: 'x' });
 

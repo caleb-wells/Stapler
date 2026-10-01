@@ -2,10 +2,11 @@ import { detectFormat } from './format';
 import { prepareImageInWorker } from './decode-client';
 import type { PreparedImage } from './prepared-image';
 import { baseName } from './names';
+import type { Rotation } from './rotation';
 
 export type ImageItem =
   | { id: string; path: string; name: string; status: 'loading' }
-  | { id: string; path: string; name: string; status: 'ready'; prepared: PreparedImage; thumbUrl: string }
+  | { id: string; path: string; name: string; status: 'ready'; prepared: PreparedImage; thumbUrl: string; rotation: Rotation }
   | { id: string; path: string; name: string; status: 'error'; error: string };
 
 let counter = 0;
@@ -31,7 +32,7 @@ export async function loadItem(item: ImageItem): Promise<ImageItem> {
     const thumbUrl = URL.createObjectURL(
       new Blob([buffer], { type: prepared.kind === 'jpeg' ? 'image/jpeg' : 'image/png' }),
     );
-    return { ...base, status: 'ready', prepared, thumbUrl };
+    return { ...base, status: 'ready', prepared, thumbUrl, rotation: 0 };
   } catch (err) {
     return { ...base, status: 'error', error: err instanceof Error ? err.message : String(err) };
   }

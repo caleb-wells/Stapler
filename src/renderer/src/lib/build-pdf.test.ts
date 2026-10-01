@@ -32,3 +32,18 @@ describe('buildPdf', () => {
     await expect(buildPdf([bad])).rejects.toThrow(/image 1/i);
   });
 });
+
+describe('buildPdf with rotation', () => {
+  it('swaps page dimensions for 90 and 270 degree turns', async () => {
+    const wide: PreparedImage = { ...png, width: 192, height: 96 };
+    const bytes = await buildPdf([
+      { ...wide, rotation: 90 },
+      { ...wide, rotation: 180 },
+      { ...wide, rotation: 270 },
+    ]);
+    const doc = await PDFDocument.load(bytes);
+    expect(doc.getPage(0).getSize()).toEqual({ width: 72, height: 144 });
+    expect(doc.getPage(1).getSize()).toEqual({ width: 144, height: 72 });
+    expect(doc.getPage(2).getSize()).toEqual({ width: 72, height: 144 });
+  });
+});

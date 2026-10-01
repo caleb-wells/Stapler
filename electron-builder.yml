@@ -1,4 +1,4 @@
-appId: com.calebwells.imgtopdf
+appId: com.calebwells.stapler
 productName: Stapler
 directories:
   output: dist

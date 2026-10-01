@@ -8,9 +8,11 @@ interface Props {
   items: ImageItem[];
   onReorder: (items: ImageItem[]) => void;
   onRemove: (id: string) => void;
+  onRotate: (id: string) => void;
+  onOpen: (id: string) => void;
 }
 
-export function ImageGrid({ items, onReorder, onRemove }: Props): ReactElement {
+export function ImageGrid({ items, onReorder, onRemove, onRotate, onOpen }: Props): ReactElement {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   function handleDragEnd(event: DragEndEvent): void {
@@ -27,7 +29,7 @@ export function ImageGrid({ items, onReorder, onRemove }: Props): ReactElement {
       <SortableContext items={items.map((i) => i.id)} strategy={rectSortingStrategy}>
         <ul className="grid">
           {items.map((item, index) => (
-            <ImageCard key={item.id} item={item} index={index} onRemove={onRemove} />
+            <ImageCard key={item.id} item={item} index={index} onRemove={onRemove} onRotate={onRotate} onOpen={onOpen} />
           ))}
         </ul>
       </SortableContext>

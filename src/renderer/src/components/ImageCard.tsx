@@ -2,14 +2,17 @@ import type { ReactElement } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { ImageItem } from '../lib/items';
+import { RotateIcon } from './icons';
 
 interface Props {
   item: ImageItem;
   index: number;
   onRemove: (id: string) => void;
+  onRotate: (id: string) => void;
+  onOpen: (id: string) => void;
 }
 
-export function ImageCard({ item, index, onRemove }: Props): ReactElement {
+export function ImageCard({ item, index, onRemove, onRotate, onOpen }: Props): ReactElement {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
@@ -22,19 +25,35 @@ export function ImageCard({ item, index, onRemove }: Props): ReactElement {
           <circle cx="2.5" cy="13.5" r="1.5" /><circle cx="7.5" cy="13.5" r="1.5" />
         </svg>
       </button>
-      <div className="thumb">
-        {item.status === 'ready' && <img src={item.thumbUrl} alt="" />}
+      <button
+        type="button"
+        className={`thumb ${item.status === 'ready' ? 'thumb-clickable' : ''}`}
+        onClick={() => item.status === 'ready' && onOpen(item.id)}
+        aria-label={item.status === 'ready' ? `Preview ${item.name}` : undefined}
+        disabled={item.status !== 'ready'}
+      >
+        {item.status === 'ready' && (
+          <img src={item.thumbUrl} alt="" style={{ transform: `rotate(${item.rotation}deg)` }} />
+        )}
         {item.status === 'loading' && <span className="spinner" aria-label="Loading" />}
         {item.status === 'error' && <span className="error-badge">!</span>}
-      </div>
+      </button>
       <div className="meta">
         <span className="page-no">{index + 1}</span>
         <span className="name" title={item.path}>{item.name}</span>
         {item.status === 'ready' && (
-          <span className="dims">{item.prepared.width} × {item.prepared.height}</span>
+          <span className="dims">
+            {item.prepared.width} × {item.prepared.height}
+            {item.rotation !== 0 && <span className="rot-badge">{item.rotation}°</span>}
+          </span>
         )}
         {item.status === 'error' && <span className="error-text">{item.error}</span>}
       </div>
+      {item.status === 'ready' && (
+        <button className="rotate" aria-label={`Rotate ${item.name}`} title="Rotate 90°" onClick={() => onRotate(item.id)}>
+          <RotateIcon />
+        </button>
+      )}
       <button className="remove" aria-label={`Remove ${item.name}`} onClick={() => onRemove(item.id)}>
         <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M2 2l8 8M10 2l-8 8" />

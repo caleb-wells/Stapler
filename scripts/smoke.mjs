@@ -50,6 +50,27 @@ try {
   const orderBefore = files.map((f) => f.split('/').pop());
   if (orderAfter[0] !== orderBefore[orderBefore.length - 1]) throw new Error('drag reorder did not move last card to first');
 
+  // Preview: click the first ready thumbnail, step right, rotate, close with Escape.
+  await page.click('.card-ready .thumb');
+  await page.waitForSelector('.preview-backdrop');
+  const title1 = await page.textContent('.preview-title');
+  await page.keyboard.press('ArrowRight');
+  const title2 = await page.textContent('.preview-title');
+  if (title1 === title2) throw new Error('ArrowRight did not advance the preview');
+  await page.click('.preview-btn[aria-label="Rotate 90°"]');
+  const sub = await page.textContent('.preview-sub');
+  if (!sub.includes('rotated 90°')) throw new Error(`rotate in preview failed: ${sub}`);
+  await page.keyboard.press('Escape');
+  await page.waitForSelector('.preview-backdrop', { state: 'detached' });
+  console.log('preview ok:', title1, '->', title2, '|', sub.trim());
+
+  // Rotate the first card twice more from the grid (total 180 for card 1? no: card 2 got 90 in preview; card 1 gets 180 here).
+  await page.click('.card-ready .rotate');
+  await page.click('.card-ready .rotate');
+  const badges = await page.$$eval('.rot-badge', (els) => els.map((e) => e.textContent));
+  console.log('rotation badges:', badges);
+  if (!badges.includes('180°') || !badges.includes('90°')) throw new Error(`unexpected rotation badges ${badges}`);
+
   // Remove error cards.
   for (const btn of await page.$$('.card-error .remove')) await btn.click();
   await page.waitForFunction(() => document.querySelectorAll('.card-error').length === 0);
@@ -67,5 +88,7 @@ try {
 const doc = await PDFDocument.load(await readFile(outPdf));
 const sizes = Array.from({ length: doc.getPageCount() }, (_, i) => doc.getPage(i).getSize());
 console.log('pdf pages:', doc.getPageCount(), sizes.map((s) => `${s.width}x${s.height}`));
+// Page 2 was rotated 90° in the preview, so its page must be the swapped size of page 3 (same source image size).
+if (sizes[1].width !== sizes[2].height || sizes[1].height !== sizes[2].width) throw new Error('rotated page size not swapped');
 if (doc.getPageCount() !== expectedPages) throw new Error(`expected ${expectedPages} pages, got ${doc.getPageCount()}`);
 console.log('SMOKE OK');

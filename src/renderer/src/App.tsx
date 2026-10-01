@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type DragEvent, type ReactElement } from 'react';
 import { ImageGrid } from './components/ImageGrid';
+import { Preview } from './components/Preview';
+import { nextRotation } from './lib/rotation';
 import { buildPdf } from './lib/build-pdf';
 import { loadItem, pendingItem, type ImageItem } from './lib/items';
 import { defaultPdfName } from './lib/names';
@@ -16,10 +18,12 @@ export function App(): ReactElement {
   const [progress, setProgress] = useState<string | null>(null);
   const [toast, setToast] = useState<Toast>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [previewId, setPreviewId] = useState<string | null>(null);
   const itemsRef = useRef(items);
   itemsRef.current = items;
 
-  const ready = items.filter((i) => i.status === 'ready');
+  const ready = items.filter((i): i is Extract<ImageItem, { status: 'ready' }> => i.status === 'ready');
+  const previewIndex = previewId === null ? -1 : ready.findIndex((i) => i.id === previewId);
   const loadingCount = items.filter((i) => i.status === 'loading').length;
   const exportable = canExport(items);
 
@@ -51,6 +55,23 @@ export function App(): ReactElement {
     });
   }
 
+  const rotate = useCallback((id: string) => {
+    setItems((prev) => prev.map((i) => (i.id === id && i.status === 'ready' ? { ...i, rotation: nextRotation(i.rotation) } : i)));
+  }, []);
+
+  const closePreview = useCallback(() => setPreviewId(null), []);
+  const stepPreview = useCallback(
+    (delta: 1 | -1) => {
+      setPreviewId((current) => {
+        const list = itemsRef.current.filter((i) => i.status === 'ready');
+        const at = list.findIndex((i) => i.id === current);
+        const next = list[at + delta];
+        return next ? next.id : current;
+      });
+    },
+    [],
+  );
+
   function clearAll(): void {
     for (const i of itemsRef.current) if (i.status === 'ready') URL.revokeObjectURL(i.thumbUrl);
     setItems([]);
@@ -62,7 +83,7 @@ export function App(): ReactElement {
     setToast(null);
     try {
       const bytes = await buildPdf(
-        ready.map((i) => i.prepared),
+        ready.map((i) => ({ ...i.prepared, rotation: i.rotation })),
         (done, total) => setProgress(`Building page ${done} of ${total}`),
       );
       setProgress('Saving…');
@@ -104,7 +125,7 @@ export function App(): ReactElement {
             <p className="hint">JPEG, PNG, WebP, GIF, BMP, TIFF, HEIC</p>
           </div>
         ) : (
-          <ImageGrid items={items} onReorder={setItems} onRemove={remove} />
+          <ImageGrid items={items} onReorder={setItems} onRemove={remove} onRotate={rotate} onOpen={setPreviewId} />
         )}
       </main>
 
@@ -120,6 +141,10 @@ export function App(): ReactElement {
       </footer>
 
       {toast && <div className={`toast toast-${toast.kind}`}>{toast.text}</div>}
+
+      {previewIndex >= 0 && (
+        <Preview items={ready} index={previewIndex} onClose={closePreview} onStep={stepPreview} onRotate={rotate} />
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 {
-  "name": "img-to-pdf",
+  "name": "stapler",
   "version": "0.1.1",
   "description": "Stapler: staple your photos into one PDF, a page per image",
   "main": "./out/main/index.js",
