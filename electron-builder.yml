@@ -20,3 +20,6 @@ mac:
 linux:
   target: [AppImage]
   category: Graphics
+
+toolsets:
+  nsis: "1.2.1"

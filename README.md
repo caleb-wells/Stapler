@@ -21,4 +21,16 @@ files are embedded without re-encoding; other formats are converted in-app.
     npm run dist:mac     # dist/Image to PDF-x.y.z.dmg
     npm run dist:linux   # dist/Image to PDF-x.y.z.AppImage
 
-Builds for a platform must run on that platform (or in CI on that OS).
+The Windows installer can also be built from macOS or Linux (electron-builder
+downloads a NSIS toolset; no Wine needed). macOS and Linux builds must run on
+their own OS. The GitHub Actions workflow in `.github/workflows/build.yml`
+builds all three natively on every push to `main` and attaches them to a
+release when a `v*` tag is pushed.
+
+## Install
+
+- **Windows:** run `Image to PDF Setup x.y.z.exe`. Windows SmartScreen will
+  warn because the installer is not code-signed; choose "More info" then
+  "Run anyway".
+- **macOS:** open the `.dmg` and drag the app to Applications.
+- **Linux:** `chmod +x` the AppImage and run it.
