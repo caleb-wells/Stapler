@@ -36,7 +36,9 @@ export function ImageCard({ item, index, onRemove }: Props): ReactElement {
         {item.status === 'error' && <span className="error-text">{item.error}</span>}
       </div>
       <button className="remove" aria-label={`Remove ${item.name}`} onClick={() => onRemove(item.id)}>
-        ×
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <path d="M2 2l8 8M10 2l-8 8" />
+        </svg>
       </button>
     </li>
   );
