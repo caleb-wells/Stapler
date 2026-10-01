@@ -16,7 +16,11 @@ export function ImageCard({ item, index, onRemove }: Props): ReactElement {
   return (
     <li ref={setNodeRef} style={style} className={`card card-${item.status}`}>
       <button className="handle" aria-label="Drag to reorder" {...attributes} {...listeners}>
-        ⋮⋮
+        <svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true" fill="currentColor">
+          <circle cx="2.5" cy="2.5" r="1.5" /><circle cx="7.5" cy="2.5" r="1.5" />
+          <circle cx="2.5" cy="8" r="1.5" /><circle cx="7.5" cy="8" r="1.5" />
+          <circle cx="2.5" cy="13.5" r="1.5" /><circle cx="7.5" cy="13.5" r="1.5" />
+        </svg>
       </button>
       <div className="thumb">
         {item.status === 'ready' && <img src={item.thumbUrl} alt="" />}
